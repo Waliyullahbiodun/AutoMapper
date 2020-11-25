@@ -11,6 +11,7 @@ namespace AutoMapper
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ConstructorParameterMap : DefaultMemberMap
     {
+        private Type _sourceType;
         public ConstructorParameterMap(TypeMap typeMap, ParameterInfo parameter, IEnumerable<MemberInfo> sourceMembers,
             bool canResolveValue)
         {
@@ -24,12 +25,12 @@ namespace AutoMapper
 
         public override TypeMap TypeMap { get; }
 
-        public override Type SourceType =>
+        public override Type SourceType => _sourceType ??=
             CustomMapExpression?.ReturnType
             ?? CustomMapFunction?.ReturnType
             ?? (Parameter.IsOptional 
                 ? Parameter.ParameterType 
-                : SourceMembers.LastOrDefault()?.GetMemberType());
+                : SourceMembers.LastOrDefault()?.GetMemberType() ?? typeof(object));
 
         public override Type DestinationType => Parameter.ParameterType;
 
@@ -45,7 +46,7 @@ namespace AutoMapper
 
         public override bool Inline { get; set; }
 
-        public Expression DefaultValue() => Expression.Constant(Parameter.GetDefaultValue());
+        public Expression DefaultValue() => Parameter.GetDefaultValue();
 
         public override string ToString() => Parameter.Member.DeclaringType + "." + Parameter.Member + ".parameter " + Parameter.Name;
     }

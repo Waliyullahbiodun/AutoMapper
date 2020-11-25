@@ -329,6 +329,7 @@ namespace AutoMapper.Configuration
             {
                 action(propertyMap);
             }
+            propertyMap.AfterConfiguration();
         }
 
         public LambdaExpression SourceExpression { get; private set; }

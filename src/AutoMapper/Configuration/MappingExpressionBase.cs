@@ -327,13 +327,12 @@ namespace AutoMapper.Configuration
             return this as TMappingExpression;
         }
 
-        public TMappingExpression BeforeMap<TMappingAction>() where TMappingAction : IMappingAction<TSource, TDestination>
-        {
-            void BeforeFunction(TSource src, TDestination dest, ResolutionContext ctxt)
-                => ((TMappingAction)ctxt.Options.ServiceCtor(typeof(TMappingAction))).Process(src, dest, ctxt);
-
-            return BeforeMap(BeforeFunction);
-        }
+        public TMappingExpression BeforeMap<TMappingAction>() where TMappingAction : IMappingAction<TSource, TDestination> =>
+            BeforeMap(CallMapAction<TMappingAction>);
+        public TMappingExpression AfterMap<TMappingAction>() where TMappingAction : IMappingAction<TSource, TDestination> =>
+            AfterMap(CallMapAction<TMappingAction>);
+        void CallMapAction<TMappingAction>(TSource source, TDestination destination, ResolutionContext context) =>
+            ((IMappingAction<TSource, TDestination>)context.CreateInstance(typeof(TMappingAction))).Process(source, destination, context);
 
         public TMappingExpression AfterMap(Action<TSource, TDestination> afterFunction)
         {
@@ -359,14 +358,6 @@ namespace AutoMapper.Configuration
             });
 
             return this as TMappingExpression;
-        }
-
-        public TMappingExpression AfterMap<TMappingAction>() where TMappingAction : IMappingAction<TSource, TDestination>
-        {
-            void AfterFunction(TSource src, TDestination dest, ResolutionContext ctxt)
-                => ((TMappingAction)ctxt.Options.ServiceCtor(typeof(TMappingAction))).Process(src, dest, ctxt);
-
-            return AfterMap(AfterFunction);
         }
 
         public TMappingExpression PreserveReferences()
